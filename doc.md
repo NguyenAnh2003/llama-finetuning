@@ -9,6 +9,8 @@ Elementary Maths Solving
 # Keywords
 PEFT: traditional fine-tuning requires updating all of the model's params, which is expensive
     This work only updating a small subset of the model's parameters
+Matrix decomposition.
+Intrinsic dimension.
 
 # Libs
 LoRA: https://www.youtube.com/watch?v=t509sv5MT0w

@@ -1,1 +1,37 @@
-base_model:
+# train args
+output_dir: './saved_models'
+epochs: 100
+per_device_train_batch_size: 16
+gradient_accumulation_steps: 4
+optim: "adamw_bnb_8bit"
+save_steps: 10
+logging_steps: 10
+learning_rate: 2e-4
+max_grad_norm: 0.3
+max_steps: 100
+warmup_ratio: 0.03
+group_by_length: True
+lr_scheduler_type: "constant"
+use_wandb: True
+wandb_run_name: "SFT_LLaMA_7B_QLORA_Alpaca_Vi"
+
+# model base
+base_model: "NousResearch/Llama-2-7b-chat-hf"
+# saved model
+saved_model: 'nguyenanh/llama-2'
+
+# 4 bit configs
+load_in_4bit: True
+bnb_4bit_quant_type: 'nf4'
+bnb_4bit_compute_dtype: 'compute'
+bnb_4bit_use_double_quant: False
+
+# peft configs
+alpha: 16
+lora_dropout: 0.1
+peft_r: 64
+peft_bias: 'none'
+task_type: 'CAUSAL_LM'
+
+# cache dir
+cache_dir: './caches'
