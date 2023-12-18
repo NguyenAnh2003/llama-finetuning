@@ -1,5 +1,5 @@
 from setup import *
-from utils import load_params
+from helpers.utils import load_params
 
 def index():
     # get params
