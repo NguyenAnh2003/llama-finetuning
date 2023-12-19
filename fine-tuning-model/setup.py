@@ -39,6 +39,7 @@ def setup_peft_config(params):
         task_type=params['task_type'],
     )
     return peft_config
+    
 def setup_pretrained_model(model_name, cache_dir, bit4_config):
     """
     :param model_name:
