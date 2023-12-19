@@ -62,7 +62,7 @@ def setup_training_params(params):
         save_steps=params["save_steps"],
         logging_steps=params["logging_steps"],
         learning_rate=params["learning_rate"],
-        fp16=True,
+        # fp16=True,
         max_grad_norm=params["max_grad_norm"],
         max_steps=params["max_steps"],
         warmup_ratio=params["warmup_ratio"],
