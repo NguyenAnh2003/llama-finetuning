@@ -25,3 +25,4 @@ https://www.youtube.com/watch?v=Us5ZFp16PaU
 3. https://paperswithcode.com/paper/lora-low-rank-adaptation-of-large-language
 4. https://viblo.asia/p/fine-tuning-mot-cach-hieu-qua-va-than-thien-voi-phan-cung-adapters-va-lora-5pPLkj3eJRZ
 5. https://www.youtube.com/watch?v=YT3VSlDjrVU
+6. https://www.youtube.com/watch?v=J_3hDqSvpmg
