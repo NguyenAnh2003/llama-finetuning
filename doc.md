@@ -18,6 +18,7 @@ QLoRA
 
 # External guides
 https://www.youtube.com/watch?v=Us5ZFp16PaU
+https://www.youtube.com/watch?v=MDA3LUKNl1E
 
 # References
 1. https://github.com/VietnamAIHub/Vietnamese_LLMs
@@ -26,3 +27,4 @@ https://www.youtube.com/watch?v=Us5ZFp16PaU
 4. https://viblo.asia/p/fine-tuning-mot-cach-hieu-qua-va-than-thien-voi-phan-cung-adapters-va-lora-5pPLkj3eJRZ
 5. https://www.youtube.com/watch?v=YT3VSlDjrVU
 6. https://www.youtube.com/watch?v=J_3hDqSvpmg
+7. Quantization: https://www.youtube.com/watch?v=v1oHf1KV6kM

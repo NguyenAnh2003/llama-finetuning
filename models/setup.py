@@ -20,7 +20,7 @@ def setup_cache_dir(path):
 
 # set up QLoRA config
 def setup_4_bit_quant_config(params):
-    params['bnb_4bit_compute_dtype'] = getattr(torch, "float16")
+    params['bnb_4bit_compute_dtype'] = torch.bfloat16
     bit4_config = bnb_config(
         #
         load_in_4bit=params['load_in_4bit'],
@@ -93,3 +93,7 @@ def setup_trainer(model, tokenizer, dataset, peft_config, max_len, train_args):
         train_args=train_args
     )
     return trainer
+
+def training_dataset(split, dataset_url: str = None):
+    datasets = load_dataset("json",data_files=dataset_url, split=split)
+    return datasets
