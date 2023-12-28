@@ -1,6 +1,8 @@
 from setup import *
 from helpers.utils import load_params
+from functools import lru_cache, cache
 
+@cache
 def index():
     # get params
     params = load_params('../config/config.yml')
