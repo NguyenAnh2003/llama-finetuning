@@ -20,7 +20,9 @@ QLoRA
 https://www.youtube.com/watch?v=Us5ZFp16PaU
 
 # References
-https://github.com/VietnamAIHub/Vietnamese_LLMs
-https://www.datacamp.com/tutorial/fine-tuning-llama-2
-https://paperswithcode.com/paper/lora-low-rank-adaptation-of-large-language
-https://viblo.asia/p/fine-tuning-mot-cach-hieu-qua-va-than-thien-voi-phan-cung-adapters-va-lora-5pPLkj3eJRZ
+1. https://github.com/VietnamAIHub/Vietnamese_LLMs
+2. https://www.datacamp.com/tutorial/fine-tuning-llama-2
+3. https://paperswithcode.com/paper/lora-low-rank-adaptation-of-large-language
+4. https://viblo.asia/p/fine-tuning-mot-cach-hieu-qua-va-than-thien-voi-phan-cung-adapters-va-lora-5pPLkj3eJRZ
+5. https://www.youtube.com/watch?v=YT3VSlDjrVU
+6. https://www.youtube.com/watch?v=J_3hDqSvpmg
