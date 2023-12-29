@@ -37,6 +37,8 @@ def setup_peft_config(params):
         r=params['peft_r'],
         bias=params['peft_bias'],
         task_type=params['task_type'],
+        # set up inference mode
+        inference_mode=False
     )
     return peft_config
     

@@ -33,6 +33,6 @@ def index():
     #                         train_args=train_args)
     print(f"Quant config: {quant_config.to_dict()} PEFT config: {peft_config.to_dict()}"
           f"Train Arg: {train_args.to_dict()} Dataset: {dataset}")
-
+    # trainer.train()
 # execute train
 index()

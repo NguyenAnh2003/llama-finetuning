@@ -19,6 +19,7 @@ QLoRA
 # External guides
 https://www.youtube.com/watch?v=Us5ZFp16PaU
 https://www.youtube.com/watch?v=MDA3LUKNl1E
+EFT: https://www.youtube.com/watch?v=g68qlo9Izf0
 
 # References
 1. https://github.com/VietnamAIHub/Vietnamese_LLMs
