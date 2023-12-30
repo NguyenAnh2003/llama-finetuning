@@ -43,7 +43,6 @@ def setup_peft_config(params):
     )
     return peft_config
 
-@lru_cache(maxsize=3)
 def setup_pretrained_model(model_name, cache_dir, bit4_config):
     """
     :param model_name:
@@ -108,7 +107,7 @@ def setup_trainer(model, tokenizer, dataset, peft_config, max_len, train_args):
         train_dataset=dataset,
         peft_config=peft_config,
         max_seq_length=max_len,
-        train_args=train_args,
+        args=train_args,
         formatting_func=formatting_prompts_func
     )
     return trainer

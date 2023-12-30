@@ -3,6 +3,7 @@ from helpers.utils import load_params
 from functools import lru_cache, cache
 import os
 from dotenv import load_dotenv
+import torch
 
 # env config
 load_dotenv()
