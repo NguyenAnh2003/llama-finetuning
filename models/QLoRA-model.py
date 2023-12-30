@@ -6,33 +6,46 @@ from dotenv import load_dotenv
 
 # env config
 load_dotenv()
-@cache
 def index():
-    # timdettmers/openassistant-guanaco
+    """
+    fine tuning model with QLoRA config
+    and PEFT config
+    """
     # get params
     params = load_params('../config/config.yml')
-    print(f'Params: {params}')
     # quantization config 4 bit
     quant_config = setup_4_bit_quant_config(params)
     # pretrained model setup
-    # model, tokenizer = setup_pretrained_model(params['base_model'],
-    #                                   params['cache_dir'],
-    #                                   bit4_config=quant_config)
+    model, tokenizer = setup_pretrained_model(params['base_model'],
+                                      params['cache_dir'],
+                                      bit4_config=quant_config)
+    # tokenizer 2nd config
+    tokenizer.padding_size = 'right'
+
     # PEFT config
     peft_config = setup_peft_config(params)
+
     # trainer arg
     train_args = setup_training_params(params)
+
     # dataset
     links = os.getenv('INSTRUCTION_DATASET')
     dataset = training_dataset(dataset_url=links, split='train')
+
     # Get trainer
-    # trainer = setup_trainer(model=model,
-    #                         tokenizer=tokenizer,
-    #                         peft_config=peft_config,
-    #                         max_len=2048,
-    #                         train_args=train_args)
+    trainer = setup_trainer(model=model,
+                            tokenizer=tokenizer,
+                            peft_config=peft_config,
+                            max_len=2048,
+                            train_args=train_args)
+
     print(f"Quant config: {quant_config.to_dict()} PEFT config: {peft_config.to_dict()}"
           f"Train Arg: {train_args.to_dict()} Dataset: {dataset}")
-    # trainer.train()
-# execute train
+
+    # training
+    trainer.train()
+
+    # save model
+    trainer.save_model(params['output_dir'])
+
 index()

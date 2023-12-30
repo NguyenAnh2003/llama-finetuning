@@ -1,4 +1,3 @@
-import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, \
     BitsAndBytesConfig as bnb_config
 import os
@@ -10,6 +9,7 @@ from peft import prepare_model_for_kbit_training, \
 from datasets import load_dataset
 from transformers import TrainingArguments
 from trl import SFTTrainer
+from functools import *
 
 def setup_cache_dir(path):
     """
@@ -41,19 +41,25 @@ def setup_peft_config(params):
         inference_mode=False
     )
     return peft_config
-    
+
+@lru_cache(maxsize=3)
 def setup_pretrained_model(model_name, cache_dir, bit4_config):
     """
     :param model_name:
     :param cache_dir: Path to a directory in which a downloaded pretrained model configuration should be cached if the
                 standard cache should not be used.
     """
-    tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir)  # tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(model_name,
+                                              cache_dir=cache_dir)  # tokenizer
     if tokenizer.pad_token is None:
         tokenizer.add_special_token({'pad_token': '[PAD]'})
-    model = AutoModelForCausalLM.from_pretrained(model_name, cache_dir, load_in_4bit=True,
-                                                 quantization_config=bit4_config, trust_remote_code=True)
+
+    model = AutoModelForCausalLM.from_pretrained(model_name,
+                                                 load_in_4bit=True,
+                                                 quantization_config=bit4_config,
+                                                 trust_remote_code=True)
     return model, tokenizer
+
 
 def setup_training_params(params):
     train_params = TrainingArguments(
@@ -65,7 +71,7 @@ def setup_training_params(params):
         save_steps=params["save_steps"],
         logging_steps=params["logging_steps"],
         learning_rate=params["learning_rate"],
-        # fp16=True,
+        fp16=True,
         max_grad_norm=params["max_grad_norm"],
         max_steps=params["max_steps"],
         warmup_ratio=params["warmup_ratio"],
@@ -86,16 +92,27 @@ def setup_trainer(model, tokenizer, dataset, peft_config, max_len, train_args):
     :param train_args:
     :return: SFT trainer
     """
+    # data processing
+    def formatting_prompts_func(example):
+        output_texts = []
+        prompt = "Sample including Instruction, User input, and the output should be of the question"
+        for i in range(len(example['instruction'])):
+            text = f"{prompt} ### Question: {example['instruction'][i]}\n ### User input: {example['input'][i]}\n ### Answer: {example['output'][i]} "
+            output_texts.append(text)
+        return output_texts
+
     trainer = SFTTrainer(
         model=model,
         tokenizer=tokenizer,
         train_dataset=dataset,
         peft_config=peft_config,
         max_seq_length=max_len,
-        train_args=train_args
+        train_args=train_args,
+        formatting_func=formatting_prompts_func
     )
     return trainer
 
+@cache
 def training_dataset(split, dataset_url: str = None):
     datasets = load_dataset("json",data_files=dataset_url, split=split)
     return datasets

@@ -1,1 +1,5 @@
-trà
+python-dotenv~=1.0.0
+transformers~=4.36.2
+datasets~=2.16.0
+PyYAML~=6.0.1
+torch==2.0.1
