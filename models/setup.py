@@ -23,6 +23,7 @@ def setup_4_bit_quant_config(params):
     params['bnb_4bit_compute_dtype'] = torch.bfloat16
     bit4_config = bnb_config(
         #
+        load_in_8bit=False,
         load_in_4bit=params['load_in_4bit'],
         bnb_4bit_quant_type=params['bnb_4bit_quant_type'],
         bnb_4bit_compute_dtype=params['bnb_4bit_compute_dtype'],

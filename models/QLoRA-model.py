@@ -15,9 +15,13 @@ def index():
     params = load_params('../config/config.yml')
     # quantization config 4 bit
     quant_config = setup_4_bit_quant_config(params)
+
+    # setup cache dir
+    cache_dir = params['cache_dir']
+    setup_cache_dir(cache_dir)
     # pretrained model setup
     model, tokenizer = setup_pretrained_model(params['base_model'],
-                                      params['cache_dir'],
+                                      cache_dir=cache_dir,
                                       bit4_config=quant_config)
     # tokenizer 2nd config
     tokenizer.padding_size = 'right'
