@@ -20,7 +20,7 @@ def setup_cache_dir(path):
 
 # set up QLoRA config
 def setup_4_bit_quant_config(params):
-    params['bnb_4bit_compute_dtype'] = torch.bfloat16
+    params['bnb_4bit_compute_dtype'] = torch.float16
     bit4_config = bnb_config(
         #
         load_in_8bit=False,
@@ -62,11 +62,13 @@ def setup_pretrained_model(model_name, cache_dir, bit4_config):
                 standard cache should not be used.
     """
     tokenizer = AutoTokenizer.from_pretrained(model_name,
+                                              torch_dtype=torch.float16,
                                               cache_dir=cache_dir)  # tokenizer
     if tokenizer.pad_token is None:
         tokenizer.add_special_token({'pad_token': '[PAD]'})
 
     model = AutoModelForCausalLM.from_pretrained(model_name,
+                                                 torch_dtype=torch.float16,
                                                  load_in_4bit=True,
                                                  load_in_4bit=False,
                                                  quantization_config=bit4_config,
