@@ -117,6 +117,19 @@ def setup_trainer(model, tokenizer, train_dataset, eval_dataset, peft_config, ma
     )
     return trainer
 
+
+# Transformers Trainer
+def setup_transformers_trainer(model, train_data, eval_data, args, collator):
+  trainer = Trainer(
+    model=model,
+    train_dataset=train_data,
+    eval_dataset=eval_data,
+    args=args,
+    data_collator=collator
+  )
+  return trainer
+
+
 @cache
 def training_dataset(dataset_url: str = None):
     datasets = load_dataset("json",data_files=dataset_url)
