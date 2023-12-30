@@ -78,6 +78,7 @@ def setup_pretrained_model(model_name, cache_dir, bit4_config):
 
 def setup_training_params(params):
     train_params = TrainingArguments(
+        num_train_epochs=100,
         output_dir=params["output_dir"],
         num_train_epochs=params["epochs"],
         per_device_train_batch_size=params["per_device_train_batch_size"],
