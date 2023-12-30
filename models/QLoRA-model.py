@@ -35,7 +35,7 @@ def index():
 
     # dataset
     links = os.getenv('INSTRUCTION_DATASET')
-    dataset = training_dataset(dataset_url=links, split='train')
+    dataset = training_dataset(dataset_url=links)
 
     # Get trainer
     trainer = setup_trainer(model=model,
