@@ -96,7 +96,7 @@ def setup_trainer(model, tokenizer, dataset, peft_config, max_len, train_args):
     # data processing
     def formatting_prompts_func(example):
         output_texts = []
-        prompt = "Sample including Instruction, User input, and the output should be of the question"
+        prompt = "Sample including Instruction, User input, and the output should be of the question in Vietnamese"
         for i in range(len(example['instruction'])):
             text = f"{prompt} ### Question: {example['instruction'][i]}\n ### User input: {example['input'][i]}\n ### Answer: {example['output'][i]} "
             output_texts.append(text)
