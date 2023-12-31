@@ -24,8 +24,6 @@ def index():
     model, tokenizer = setup_pretrained_model(params['base_model'],
                                       cache_dir=cache_dir,
                                       bit4_config=quant_config)
-    # tokenizer 2nd config
-    tokenizer.padding_size = 'right'
 
     # PEFT config
     peft_config = setup_peft_config(params)
