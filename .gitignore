@@ -160,4 +160,4 @@ cython_debug/
 #.idea/
 
 dataset-links.md
-doc.md
+document.md
