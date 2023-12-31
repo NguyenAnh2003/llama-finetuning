@@ -5,10 +5,10 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig as bnb_config
 import os
 from peft import prepare_model_for_kbit_training, \
-    LoraConfig, get_peft_config, get_peft_model_state_dict, prepare_model_for_int8_training, set_peft_model_state_dict
+    LoraConfig, get_peft_config, get_peft_model_state_dict, prepare_model_for_int8_training, set_peft_model_state_dict, get_peft_model
 from datasets import load_dataset
 from transformers import TrainingArguments
-from trl import SFTTrainer
+from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 from functools import *
 
 def setup_cache_dir(path):
@@ -20,7 +20,7 @@ def setup_cache_dir(path):
 
 # set up QLoRA config
 def setup_4_bit_quant_config(params):
-    params['bnb_4bit_compute_dtype'] = torch.bfloat16
+    params['bnb_4bit_compute_dtype'] = torch.float16
     bit4_config = bnb_config(
         #
         load_in_8bit=False,
@@ -43,6 +43,18 @@ def setup_peft_config(params):
     )
     return peft_config
 
+# PEFT model
+def setup_peft_model(model, peft_config):
+  model = get_peft_model(model, peft_config);
+  # trainable params
+  model.print_trainable_parameters()
+  return model
+
+# peft model state dict
+def peft_model_state_dict(model):
+  model_state_dict = get_model_state_dict(model)
+  return model_state_dict
+
 def setup_pretrained_model(model_name, cache_dir, bit4_config):
     """
     :param model_name:
@@ -50,12 +62,15 @@ def setup_pretrained_model(model_name, cache_dir, bit4_config):
                 standard cache should not be used.
     """
     tokenizer = AutoTokenizer.from_pretrained(model_name,
+                                              torch_dtype=torch.float16,
                                               cache_dir=cache_dir)  # tokenizer
     if tokenizer.pad_token is None:
         tokenizer.add_special_token({'pad_token': '[PAD]'})
 
     model = AutoModelForCausalLM.from_pretrained(model_name,
+                                                 torch_dtype=torch.float16,
                                                  load_in_4bit=True,
+                                                 load_in_4bit=False,
                                                  quantization_config=bit4_config,
                                                  trust_remote_code=True)
     return model, tokenizer
@@ -63,6 +78,7 @@ def setup_pretrained_model(model_name, cache_dir, bit4_config):
 
 def setup_training_params(params):
     train_params = TrainingArguments(
+        num_train_epochs=100,
         output_dir=params["output_dir"],
         num_train_epochs=params["epochs"],
         per_device_train_batch_size=params["per_device_train_batch_size"],
@@ -82,7 +98,7 @@ def setup_training_params(params):
     )
     return train_params
 
-def setup_trainer(model, tokenizer, dataset, peft_config, max_len, train_args):
+def setup_trainer(model, tokenizer, train_dataset, eval_dataset, peft_config, max_len, train_args):
     """
     :param model: LLMs
     :param tokenizer: LLMs tokenizer
@@ -92,27 +108,32 @@ def setup_trainer(model, tokenizer, dataset, peft_config, max_len, train_args):
     :param train_args:
     :return: SFT trainer
     """
-    # data processing
-    def formatting_prompts_func(example):
-        output_texts = []
-        prompt = "Sample including Instruction, User input, and the output should be of the question in Vietnamese"
-        for i in range(len(example['instruction'])):
-            text = f"{prompt} ### Question: {example['instruction'][i]}\n ### User input: {example['input'][i]}\n ### Answer: {example['output'][i]} "
-            output_texts.append(text)
-        return output_texts
-
     trainer = SFTTrainer(
         model=model,
         tokenizer=tokenizer,
-        train_dataset=dataset,
+        train_dataset=train_dataset,
+        eval_dataset=eval_dataset,
         peft_config=peft_config,
         max_seq_length=max_len,
         args=train_args,
-        formatting_func=formatting_prompts_func
+        dataset_batch_size=32
     )
     return trainer
 
+
+# Transformers Trainer
+def setup_transformers_trainer(model, train_data, eval_data, args, collator):
+  trainer = Trainer(
+    model=model,
+    train_dataset=train_data,
+    eval_dataset=eval_data,
+    args=args,
+    data_collator=collator
+  )
+  return trainer
+
+
 @cache
-def training_dataset(split, dataset_url: str = None):
-    datasets = load_dataset("json",data_files=dataset_url, split=split)
+def training_dataset(dataset_url: str = None):
+    datasets = load_dataset("json",data_files=dataset_url)
     return datasets
