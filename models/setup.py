@@ -7,7 +7,7 @@ import os
 from peft import prepare_model_for_kbit_training, \
     LoraConfig, get_peft_config, get_peft_model_state_dict, prepare_model_for_int8_training, set_peft_model_state_dict, get_peft_model
 from datasets import load_dataset
-from transformers import TrainingArguments
+from transformers import TrainingArguments, Trainer
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 from functools import *
 
@@ -44,6 +44,7 @@ def setup_peft_config(params):
     return peft_config
 
 # PEFT model
+@lru_cache(maxsize=2)
 def setup_peft_model(model, peft_config):
   model = get_peft_model(model, peft_config);
   # trainable params
@@ -52,7 +53,7 @@ def setup_peft_model(model, peft_config):
 
 # peft model state dict
 def peft_model_state_dict(model):
-  model_state_dict = get_model_state_dict(model)
+  model_state_dict = get_peft_model_state_dict(model)
   return model_state_dict
 
 def setup_pretrained_model(model_name, cache_dir, bit4_config):
@@ -87,6 +88,7 @@ def setup_training_params(params):
         logging_steps=params["logging_steps"],
         learning_rate=params["learning_rate"],
         fp16=True,
+        bf16=False,
         max_grad_norm=params["max_grad_norm"],
         max_steps=params["max_steps"],
         warmup_ratio=params["warmup_ratio"],
