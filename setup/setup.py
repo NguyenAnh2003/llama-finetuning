@@ -1,15 +1,13 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM, \
-    BitsAndBytesConfig as bnb_config
-import os
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig as bnb_config
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 import os
 from peft import prepare_model_for_kbit_training, \
-    LoraConfig, get_peft_config, get_peft_model_state_dict, prepare_model_for_int8_training, set_peft_model_state_dict, get_peft_model
+    LoraConfig, get_peft_config, get_peft_model_state_dict, get_peft_model
 from datasets import load_dataset
 from transformers import TrainingArguments, Trainer
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 from functools import *
+import logging
 
 def setup_cache_dir(path):
     """
@@ -21,15 +19,13 @@ def setup_cache_dir(path):
 # set up QLoRA config
 def setup_4_bit_quant_config(params):
     params['bnb_4bit_compute_dtype'] = torch.float16
-    bit4_config = bnb_config(
-        #
-        load_in_8bit=False,
+    config = BitsAndBytesConfig(
         load_in_4bit=params['load_in_4bit'],
         bnb_4bit_quant_type=params['bnb_4bit_quant_type'],
         bnb_4bit_compute_dtype=params['bnb_4bit_compute_dtype'],
         bnb_4bit_use_double_quant=params['bnb_4bit_use_double_quant']
     )
-    return bit4_config
+    return config
 
 def setup_peft_config(params):
     peft_config = LoraConfig(
@@ -44,11 +40,9 @@ def setup_peft_config(params):
     return peft_config
 
 # PEFT model
-@lru_cache(maxsize=2)
 def setup_peft_model(model, peft_config):
-  model = get_peft_model(model, peft_config);
-  # trainable params
-  model.print_trainable_parameters()
+  model = get_peft_model(model, peft_config); # getting peft model
+  model.print_trainable_parameters() # trainable params
   return model
 
 # peft model state dict
@@ -56,24 +50,34 @@ def peft_model_state_dict(model):
   model_state_dict = get_peft_model_state_dict(model)
   return model_state_dict
 
-def setup_pretrained_model(model_name, cache_dir, bit4_config):
+def setup_pretrained_model(model_name, bnb_config):
     """
     :param model_name:
     :param cache_dir: Path to a directory in which a downloaded pretrained model configuration should be cached if the
                 standard cache should not be used.
     """
     tokenizer = AutoTokenizer.from_pretrained(model_name,
-                                              torch_dtype=torch.float16,
-                                              cache_dir=cache_dir)  # tokenizer
-    if tokenizer.pad_token is None:
-        tokenizer.add_special_token({'pad_token': '[PAD]'})
-
+                                              trust_remote_code=True,
+                                              torch_dtype=torch.bfloat16,)  # tokenizer
+    # if tokenizer.pad_token is None:
+        # tokenizer.add_special_token({'pad_token': '[PAD]'})
+    tokenizer.pad_token = tokenizer.eos_token # replace pad with eos token
+    # config use_cache: False -> don't use old params
     model = AutoModelForCausalLM.from_pretrained(model_name,
-                                                 torch_dtype=torch.float16,
+                                                 use_cache=False,
+                                                 torch_dtype=torch.bfloat16,
                                                  load_in_4bit=True,
                                                  load_in_8bit=False,
-                                                 quantization_config=bit4_config,
+                                                 quantization_config=bnb_config,
                                                  trust_remote_code=True)
+    """ getting model for kbit quantization
+    Casts all the non kbit modules to full precision(fp32) for stability
+    Adds a forward hook to the input embedding layer to calculate the
+    gradients of the input hidden states
+    Enables gradient checkpointing for more memory-efficient training
+    """
+    logging.info("model loaded in type", getattr(model, "is_loaded_in_4bit")) # logging info
+    model = prepare_model_for_kbit_training(model) #
     return model, tokenizer
 
 

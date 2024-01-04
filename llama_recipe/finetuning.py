@@ -1,9 +1,7 @@
-from setup import *
+from setup.setup import *
 from helpers.utils import load_params
-from functools import lru_cache, cache
 import os
 from dotenv import load_dotenv
-import torch
 
 # env config
 load_dotenv()
@@ -25,9 +23,12 @@ def index():
                                       cache_dir=cache_dir,
                                       bit4_config=quant_config)
 
+    
     # PEFT config
     peft_config = setup_peft_config(params)
 
+    model_peft = setup_peft_model(model=model, peft_config=peft_config)
+    
     # trainer arg
     train_args = setup_training_params(params)
 
@@ -36,7 +37,7 @@ def index():
     dataset = training_dataset(dataset_url=links)
 
     # Get trainer
-    trainer = setup_trainer(model=model,
+    trainer = setup_trainer(model=model_peft,
                             tokenizer=tokenizer,
                             peft_config=peft_config,
                             max_len=2048,
