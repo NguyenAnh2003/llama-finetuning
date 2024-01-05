@@ -62,6 +62,7 @@ def setup_pretrained_model(model_name, bnb_config):
     # if tokenizer.pad_token is None:
         # tokenizer.add_special_token({'pad_token': '[PAD]'})
     tokenizer.pad_token = tokenizer.eos_token # replace pad with eos token
+    tokenizer.add_eos_token = True
     # config use_cache: False -> don't use old params
     model = AutoModelForCausalLM.from_pretrained(model_name,
                                                  use_cache=False,
