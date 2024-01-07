@@ -16,7 +16,7 @@ use_wandb: True
 wandb_run_name: "SFT_LLaMA_7B_QLORA_Alpaca_Vi"
 
 # model base
-base_model: "NousResearch/Llama-2-7b-chat-hf"
+base_model: "meta-llama/Llama-2-7b-hf" # tensor type F32 F16
 # saved model
 saved_model: 'nguyenanh/llama-2'
 

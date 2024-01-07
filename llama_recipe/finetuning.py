@@ -47,7 +47,7 @@ def index():
           f"Train Arg: {train_args.to_dict()} Dataset: {dataset}")
 
     # training
-    trainer.train()
+    trainer.train() # train with SFTTrainer
 
     # save model
     trainer.save_model(params['output_dir'])

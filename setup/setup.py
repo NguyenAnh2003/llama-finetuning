@@ -1,5 +1,7 @@
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+from transformers import AutoTokenizer, \
+    AutoModelForCausalLM, BitsAndBytesConfig, LlamaForCausalLM, LlamaTokenizer
+from transformers.utils import logging
 import os
 from peft import prepare_model_for_kbit_training, \
     LoraConfig, get_peft_config, get_peft_model_state_dict, get_peft_model
@@ -7,7 +9,6 @@ from datasets import load_dataset
 from transformers import TrainingArguments, Trainer
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 from functools import *
-import logging
 
 def setup_cache_dir(path):
     """
@@ -41,14 +42,14 @@ def setup_peft_config(params):
 
 # PEFT model
 def setup_peft_model(model, peft_config):
-  model = get_peft_model(model, peft_config); # getting peft model
-  model.print_trainable_parameters() # trainable params
-  return model
-
-# peft model state dict
-def peft_model_state_dict(model):
-  model_state_dict = get_peft_model_state_dict(model)
-  return model_state_dict
+    """
+    :param model: taking pre-trained model
+    :param peft_config: defined PEFT config
+    :return: PEFT model
+    """
+    model = get_peft_model(model, peft_config); # getting peft model
+    model.print_trainable_parameters() # trainable params
+    return model
 
 def setup_pretrained_model(model_name, bnb_config):
     """
@@ -56,17 +57,17 @@ def setup_pretrained_model(model_name, bnb_config):
     :param cache_dir: Path to a directory in which a downloaded pretrained model configuration should be cached if the
                 standard cache should not be used.
     """
-    tokenizer = AutoTokenizer.from_pretrained(model_name,
+    tokenizer = LlamaTokenizer.from_pretrained(model_name,
                                               trust_remote_code=True,
-                                              torch_dtype=torch.bfloat16,)  # tokenizer
+                                              torch_dtype=torch.float16,)  # tokenizer
     # if tokenizer.pad_token is None:
         # tokenizer.add_special_token({'pad_token': '[PAD]'})
     tokenizer.pad_token = tokenizer.eos_token # replace pad with eos token
     tokenizer.add_eos_token = True
     # config use_cache: False -> don't use old params
-    model = AutoModelForCausalLM.from_pretrained(model_name,
+    model = LlamaForCausalLM.from_pretrained(model_name,
                                                  use_cache=False,
-                                                 torch_dtype=torch.bfloat16,
+                                                 torch_dtype=torch.float16,
                                                  load_in_4bit=True,
                                                  load_in_8bit=False,
                                                  quantization_config=bnb_config,
@@ -83,6 +84,10 @@ def setup_pretrained_model(model_name, bnb_config):
 
 
 def setup_training_params(params):
+    """
+    :param params: defined params
+    :return: Training argurments transformers
+    """
     train_params = TrainingArguments(
         output_dir=params["output_dir"],
         num_train_epochs=params["epochs"],
@@ -129,17 +134,29 @@ def setup_trainer(model, tokenizer, train_dataset, eval_dataset, peft_config, ma
 
 # Transformers Trainer
 def setup_transformers_trainer(model, train_data, eval_data, args, collator):
-  trainer = Trainer(
+    """
+    :param model: PEFT model
+    :param train_data: train set
+    :param eval_data: dev set
+    :param args: training args
+    :param collator: data colllator
+    :return: transformer Trainer class
+    """
+    trainer = Trainer(
     model=model,
     train_dataset=train_data,
     eval_dataset=eval_data,
     args=args,
     data_collator=collator
-  )
-  return trainer
+    )
+    return trainer
 
 
 @cache
 def training_dataset(dataset_url: str = None):
+    """
+    :param dataset_url: json file
+    :return: set of data
+    """
     datasets = load_dataset("json",data_files=dataset_url)
     return datasets
