@@ -1,7 +1,6 @@
 import torch
 from transformers import AutoTokenizer, \
     AutoModelForCausalLM, BitsAndBytesConfig, LlamaForCausalLM, LlamaTokenizer
-from transformers.utils import logging
 import os
 from peft import prepare_model_for_kbit_training, \
     LoraConfig, get_peft_config, get_peft_model_state_dict, get_peft_model
@@ -78,7 +77,7 @@ def setup_pretrained_model(model_name, bnb_config):
     gradients of the input hidden states
     Enables gradient checkpointing for more memory-efficient training
     """
-    logging.info("model loaded in type", getattr(model, "is_loaded_in_4bit")) # logging info
+    model.config.use_cache = False # avoid caching for not remember old weights
     model = prepare_model_for_kbit_training(model) #
     return model, tokenizer
 
