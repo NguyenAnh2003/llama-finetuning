@@ -65,7 +65,7 @@ def setup_pretrained_model(model_name, bnb_config):
     :param cache_dir: Path to a directory in which a downloaded pretrained model configuration should be cached if the
                 standard cache should not be used.
     """
-    tokenizer = LlamaTokenizer.from_pretrained(model_name,
+    tokenizer = AutoTokenizer.from_pretrained(model_name,
                                               trust_remote_code=True,
                                               torch_dtype=torch.float16,)  # tokenizer
     # if tokenizer.pad_token is None:
@@ -73,8 +73,7 @@ def setup_pretrained_model(model_name, bnb_config):
     tokenizer.pad_token = tokenizer.eos_token # replace pad with eos token
     tokenizer.add_eos_token = True
     # config use_cache: False -> don't use old params
-    model = LlamaForCausalLM.from_pretrained(model_name,
-                                                 use_cache=False,
+    model = AutoModelForCausalLM.from_pretrained(model_name,
                                                  torch_dtype=torch.float16,
                                                  load_in_4bit=True,
                                                  load_in_8bit=False,
