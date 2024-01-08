@@ -4,7 +4,7 @@ from transformers import AutoTokenizer, \
 import os
 from peft import prepare_model_for_kbit_training, \
     LoraConfig, get_peft_config, get_peft_model_state_dict, get_peft_model
-from datasets import load_dataset
+from datasets import load_dataset, Dataset, DatasetDict
 from transformers import TrainingArguments, Trainer
 from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
 from functools import *
@@ -18,6 +18,11 @@ def setup_cache_dir(path):
 
 # set up QLoRA config
 def setup_4_bit_quant_config(params):
+    """
+    Quantization configuration with BitsAndBytes lib
+    :param params:
+    :return: Quantization config
+    """
     params['bnb_4bit_compute_dtype'] = torch.float16
     config = BitsAndBytesConfig(
         load_in_4bit=params['load_in_4bit'],
@@ -25,9 +30,13 @@ def setup_4_bit_quant_config(params):
         bnb_4bit_compute_dtype=params['bnb_4bit_compute_dtype'],
         bnb_4bit_use_double_quant=params['bnb_4bit_use_double_quant']
     )
-    return config
+    return config # quantization config
 
 def setup_peft_config(params):
+    """ PEFT config setup using trainable params with PEFT
+    :param params:
+    :return: PEFT config
+    """
     peft_config = LoraConfig(
         lora_alpha=params['alpha'],
         lora_dropout=params['lora_dropout'],
@@ -78,6 +87,7 @@ def setup_pretrained_model(model_name, bnb_config):
     Enables gradient checkpointing for more memory-efficient training
     """
     model.config.use_cache = False # avoid caching for not remember old weights
+    model.gradient_checkpointing_enable() #
     model = prepare_model_for_kbit_training(model) #
     return model, tokenizer
 
@@ -96,15 +106,15 @@ def setup_training_params(params):
         save_steps=params["save_steps"],
         logging_steps=params["logging_steps"],
         learning_rate=params["learning_rate"],
-        fp16=True,
-        bf16=False,
+        fp16=params['fp16'],
+        bf16=params['bf16'],
         max_grad_norm=params["max_grad_norm"],
         max_steps=params["max_steps"],
         warmup_ratio=params["warmup_ratio"],
         group_by_length=params["group_by_length"],
         lr_scheduler_type=params["lr_scheduler_type"],
-        report_to="wandb" if params["use_wandb"] else None,
-        run_name=params["wandb_run_name"] if params["use_wandb"] else None,
+        # report_to="wandb" if params["use_wandb"] else None,
+        # run_name=params["wandb_run_name"] if params["use_wandb"] else None,
     )
     return train_params
 

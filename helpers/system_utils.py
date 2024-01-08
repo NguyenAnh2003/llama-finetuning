@@ -1,6 +1,13 @@
 import platform
-
+from pynvml import  *
 import torch
+
+# GPU utilization
+def get_gpu_utilization():
+    nvmlInit()
+    handle = nvmlDeviceGetHandleByIndex(0)
+    info = nvmlDeviceGetMemoryInfo(handle)
+    print(f"GPU memory occupied: {info.used//1024**2} MB")
 
 # get GPU services
 def get_gpu_services():
