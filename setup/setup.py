@@ -104,7 +104,7 @@ def setup_training_params(params):
         optim=params["optim"],
         save_steps=params["save_steps"],
         logging_steps=params["logging_steps"],
-        learning_rate=params["learning_rate"],
+        learning_rate=float(params["learning_rate"]),
         fp16=params['fp16'],
         bf16=params['bf16'],
         max_grad_norm=params["max_grad_norm"],
@@ -159,8 +159,6 @@ def setup_transformers_trainer(model, train_data, eval_data, args, collator):
     )
     return trainer
 
-
-@cache
 def training_dataset(dataset_url: str = None):
     """
     :param dataset_url: json file
