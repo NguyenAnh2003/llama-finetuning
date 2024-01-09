@@ -3,8 +3,10 @@ from helpers.utils import load_params
 import os
 from dotenv import load_dotenv
 
-# env config
+# .env config
 load_dotenv()
+
+
 def index():
     """
     fine tuning model with QLoRA config
@@ -20,15 +22,13 @@ def index():
     setup_cache_dir(cache_dir)
     # pretrained model setup
     model, tokenizer = setup_pretrained_model(params['base_model'],
-                                      cache_dir=cache_dir,
-                                      bit4_config=quant_config)
+                                              bnb_config=quant_config)
 
-    
     # PEFT config
     peft_config = setup_peft_config(params)
 
     model_peft = setup_peft_model(model=model, peft_config=peft_config)
-    
+
     # trainer arg
     train_args = setup_training_params(params)
 
@@ -47,9 +47,10 @@ def index():
           f"Train Arg: {train_args.to_dict()} Dataset: {dataset}")
 
     # training
-    trainer.train() # train with SFTTrainer
+    trainer.train()  # train with SFTTrainer
 
     # save model
     trainer.save_model(params['output_dir'])
+
 
 index()

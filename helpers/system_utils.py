@@ -1,5 +1,5 @@
 import platform
-from pynvml import  *
+from pynvml import *
 import torch
 
 # GPU utilization
