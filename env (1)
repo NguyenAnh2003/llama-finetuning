@@ -1,0 +1,2 @@
+INSTRUCTION_DATASET=https://raw.githubusercontent.com/VietnamAIHub/Vietnamese_LLMs/main/Generate_and_Translate_Dataset/Vietnamese_Instructions_datasets/Translation/Alpaca_52k/GPT_35_results/alpaca_translate_GPT_35_10_20k.json
+WAND_API=88703a109484dd7073697846d45f19591fb61036
