@@ -3,7 +3,7 @@ from helpers.utils import load_params
 import os
 from dotenv import load_dotenv
 
-# env config
+# .env config
 load_dotenv()
 
 
