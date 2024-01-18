@@ -2,6 +2,11 @@ import platform
 from pynvml import *
 import torch
 
+# setup device
+def get_device():
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    return device
+
 # GPU utilization
 def get_gpu_utilization():
     nvmlInit()
