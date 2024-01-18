@@ -37,6 +37,8 @@ def index():
     links = os.getenv('INSTRUCTION_DATASET')
     dataset = training_dataset(dataset_url=links)
 
+
+
     # custom data with prompt
 
     # Get trainer
@@ -50,9 +52,10 @@ def index():
 
     # training
     trainer.train()  # train with SFTTrainer
+    # log to WB
 
     # save model
-    trainer.save_model(params['output_dir'])
+    # trainer.save_model(params['output_dir'])
 
 
 if __name__ == "__main__":
