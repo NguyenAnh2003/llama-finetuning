@@ -166,20 +166,6 @@ def training_dataset(dataset_url: str = None):
     datasets = load_dataset("json",data_files=dataset_url)
     return datasets
 
-# setup prompt and design
-def generate_prompt(point):
-    """ Data format having {Instruction, Input, Output}
-    :param point(data point) passing through data collator
-    dataset attr (instruction, input, output)
-    """
-    return f"""
-    Bạn là trợ lý AI hữu ích. Hãy trả lời câu hỏi của người dùng một cách có logic nhất
-    dưới đây ### Instruction: {point['instruction']} là sự hướng dẫn hoặc cũng có thể là input của người dùng
-    hãy dựa vào đây để trả lời câu hỏi
-    ### Input: {point['input']} cũng có thể là input của người dùng (ở đây có thể có hoặc không)
-    ### Output: {point['output']} sẽ là kết quả của câu hỏi
-    """
-
 # generate and tokenize prompt
 def gen_tokenize(point, tokenizer):
     """
@@ -188,9 +174,23 @@ def gen_tokenize(point, tokenizer):
     :param tokenizer: tokenizer
     :return: set train
     """
-    prompt = generate_prompt(point) # generate prompt based on data point
 
+    # setup prompt and design
+    def generate_prompt(point):
+        """ Data format having {Instruction, Input, Output}
+        :param point(data point) passing through data collator
+        dataset attr (instruction, input, output)
+        """
+        return f"""
+        Bạn là trợ lý AI hữu ích. Hãy trả lời câu hỏi của người dùng một cách có logic nhất
+        dưới đây ### Instruction: {point['instruction']} là sự hướng dẫn hoặc cũng có thể là input của người dùng
+        hãy dựa vào đây để trả lời câu hỏi
+        ### Input: {point['input']} cũng có thể là input của người dùng (ở đây có thể có hoặc không)
+        ### Output: {point['output']} sẽ là kết quả của câu hỏi
+        """
+
+    prompt = generate_prompt(point) # generate prompt based on data point
     # tokenize using defined tokenizer
     tokenized_prompt = tokenizer(prompt, padding=True, truncation=True)
-
+    # returning result
     return tokenized_prompt
