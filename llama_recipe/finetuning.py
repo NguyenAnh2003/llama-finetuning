@@ -1,6 +1,7 @@
 from setup.setup import *
 from helpers.utils import load_params
 import os
+from transformers import DataCollatorForLanguageModeling
 from dotenv import load_dotenv
 
 # .env config
@@ -36,12 +37,13 @@ def index():
     links = os.getenv('INSTRUCTION_DATASET')
     dataset = training_dataset(dataset_url=links)
 
+    # custom data with prompt
+
     # Get trainer
-    trainer = setup_trainer(model=model_peft,
-                            tokenizer=tokenizer,
-                            peft_config=peft_config,
-                            max_len=2048,
-                            train_args=train_args)
+    trainer = setup_transformers_trainer(model=model_peft,
+                                         train_data=dataset,
+                                         args=train_args,
+                                         collator=DataCollatorForLanguageModeling(tokenizer, mlm=False))
 
     print(f"Quant config: {quant_config.to_dict()} PEFT config: {peft_config.to_dict()}"
           f"Train Arg: {train_args.to_dict()} Dataset: {dataset}")
@@ -53,4 +55,5 @@ def index():
     trainer.save_model(params['output_dir'])
 
 
-index()
+if __name__ == "__main__":
+    index()

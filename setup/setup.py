@@ -34,7 +34,7 @@ def setup_4_bit_quant_config(params):
 
 def setup_peft_config(params):
     """ PEFT config setup using trainable params with PEFT
-    :param params:
+    :param params: params setup
     :return: PEFT config
     """
     peft_config = LoraConfig(
@@ -52,7 +52,7 @@ def setup_peft_config(params):
 def setup_peft_model(model, peft_config):
     """
     :param model: taking pre-trained model
-    :param peft_config: defined PEFT config
+    :param peft_config: defined PEFT config get trainable params
     :return: PEFT model
     """
     model = get_peft_model(model, peft_config); # getting peft model
@@ -86,7 +86,7 @@ def setup_pretrained_model(model_name, bnb_config):
     Enables gradient checkpointing for more memory-efficient training
     """
     model.config.use_cache = False # avoid caching for not remember old weights
-    model.gradient_checkpointing_enable() #
+    model.gradient_checkpointing_enable() # save model grad "check point"
     model = prepare_model_for_kbit_training(model) #
     return model, tokenizer
 
@@ -141,7 +141,7 @@ def setup_trainer(model, tokenizer, train_dataset, eval_dataset, peft_config, ma
 
 
 # Transformers Trainer
-def setup_transformers_trainer(model, train_data, eval_data, args, collator):
+def setup_transformers_trainer(model, train_data, args, collator):
     """
     :param model: PEFT model
     :param train_data: train set
@@ -153,7 +153,6 @@ def setup_transformers_trainer(model, train_data, eval_data, args, collator):
     trainer = Trainer(
     model=model,
     train_dataset=train_data,
-    eval_dataset=eval_data,
     args=args,
     data_collator=collator
     )

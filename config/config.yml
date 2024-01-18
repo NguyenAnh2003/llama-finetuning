@@ -16,7 +16,7 @@ fp16: True # ?
 bf16: False # ?
 # logging to wandb
 use_wandb: True
-wandb_run_name: "SFT_LLaMA_7B_QLORA_Alpaca_Vi"
+wandb_run_name: "Finetuning_Llama_alpace_vi"
 
 # model base
 base_model: "NousResearch/Llama-2-7b-chat-hf" # tensor type F32 F16
