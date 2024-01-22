@@ -10,7 +10,7 @@ load_dotenv()
 
 def index():
     """
-    fine tuning model with QLoRA config
+    fine-tuning model with QLoRA config
     and PEFT config
     """
     # get params
@@ -18,9 +18,6 @@ def index():
     # quantization config 4 bit
     quant_config = setup_4_bit_quant_config(params)
 
-    # setup cache dir
-    cache_dir = params['cache_dir']
-    setup_cache_dir(cache_dir)
     # pretrained model setup
     model, tokenizer = setup_pretrained_model(params['base_model'],
                                               bnb_config=quant_config)
@@ -36,7 +33,6 @@ def index():
     # dataset
     links = os.getenv('INSTRUCTION_DATASET')
     dataset = training_dataset(dataset_url=links)
-
 
 
     # custom data with prompt

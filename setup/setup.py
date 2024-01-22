@@ -3,10 +3,10 @@ from transformers import AutoTokenizer, \
     AutoModelForCausalLM, BitsAndBytesConfig, LlamaForCausalLM, LlamaTokenizer
 import os
 from peft import prepare_model_for_kbit_training, \
-    LoraConfig, get_peft_config, get_peft_model_state_dict, get_peft_model
-from datasets import load_dataset, Dataset, DatasetDict
+    LoraConfig, get_peft_model
+from datasets import load_dataset
 from transformers import TrainingArguments, Trainer
-from trl import SFTTrainer, DataCollatorForCompletionOnlyLM
+from trl import SFTTrainer
 from functools import *
 
 def setup_cache_dir(path):
@@ -19,9 +19,9 @@ def setup_cache_dir(path):
 # set up QLoRA config
 def setup_4_bit_quant_config(params):
     """
-    Quantization configuration with BitsAndBytes lib
-    :param params:
-    :return: Quantization config
+    QLoRA configuration with BitsAndBytes lib
+    :param params: params
+    :return: QLoRA config
     """
     params['bnb_4bit_compute_dtype'] = torch.float16
     config = BitsAndBytesConfig(
@@ -30,7 +30,7 @@ def setup_4_bit_quant_config(params):
         bnb_4bit_compute_dtype=params['bnb_4bit_compute_dtype'],
         bnb_4bit_use_double_quant=params['bnb_4bit_use_double_quant']
     )
-    return config # quantization config
+    return config # QLoRA
 
 def setup_peft_config(params):
     """ PEFT config setup using trainable params with PEFT
