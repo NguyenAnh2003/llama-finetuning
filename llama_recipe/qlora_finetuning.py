@@ -53,6 +53,5 @@ def index():
     # save model
     # trainer.save_model(params['output_dir'])
 
-
 if __name__ == "__main__":
     index()

@@ -1,6 +1,9 @@
+import wandb
 from transformers import logging
-def setup_logger():
-    """ Setup logger """
-    logging.set_verbosity_error() #
+from dotenv import load_dotenv
+import os
 
-    return logging
+# load env vars
+load_dotenv()
+# auth wandb
+wandb.login(key=os.getenv("WANDB_API"))

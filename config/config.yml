@@ -21,7 +21,7 @@ wandb_run_name: "Finetuning_Llama_alpace_vi"
 # model base
 base_model: "NousResearch/Llama-2-7b-chat-hf" # tensor type F32 F16
 # saved model
-saved_model: 'nguyenanh/llama-2'
+saved_model: 'nguyenanh-qlora/llama-2'
 
 # 4 bit configs
 load_in_4bit: True
