@@ -1,5 +1,5 @@
 from setup.setup import *
-from llama_recipe.model_utils import *
+from finetuning_qlora.model_utils import *
 from helpers.utils import *
 
 params = load_params("../config/config.yml")
