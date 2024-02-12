@@ -167,7 +167,7 @@ def training_dataset(dataset_url: str = None):
     return datasets
 
 # generate and tokenize prompt
-def gen_tokenize(point, tokenizer):
+def gen_tokenize(point, tokenizer: AutoTokenizer):
     """
     Using Llama tokenizer to tokenizer the token to numerical vector for fine-tuning
     :param point: data point pass to dataset libs

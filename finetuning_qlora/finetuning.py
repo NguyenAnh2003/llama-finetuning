@@ -43,7 +43,7 @@ def index():
     # custom data with prompt (including tokenize)
     set = dataset['train'].train_test_split(test_size=0.3, seed=42)
 
-    data_train = set['train'].shard(num_shards=50, index=0).map(
+    data_train = set['train'].map(
         lambda sample: gen_tokenize(point=sample, tokenizer=tokenizer))
 
     data_collator = DataCollatorForLanguageModeling(tokenizer, mlm=False)
