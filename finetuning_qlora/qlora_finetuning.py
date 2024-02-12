@@ -3,6 +3,9 @@ from helpers.utils import load_params
 import os
 from transformers import DataCollatorForLanguageModeling
 from dotenv import load_dotenv
+import logging
+
+logger = logging.getLogger(__name__)
 
 # .env config
 load_dotenv()
@@ -34,21 +37,35 @@ def index():
     links = os.getenv('INSTRUCTION_DATASET')
     dataset = training_dataset(dataset_url=links)
 
+    # logging dataset
+    logger.info("-- Preparing Dataset --")
 
-    # custom data with prompt
+    # custom data with prompt (including tokenize)
+    set = dataset['train'].train_test_split(test_size=0.3, seed=42)
+
+    data_train = set['train'].shard(num_shards=50, index=0).map(
+        lambda sample: gen_tokenize(point=sample, tokenizer=tokenizer))
+
+    data_collator = DataCollatorForLanguageModeling(tokenizer, mlm=False)
+
+    # logging trainer
+    logger.info("-- Preparing Trainer --")
 
     # Get trainer
     trainer = setup_transformers_trainer(model=model_peft,
-                                         train_data=dataset,
+                                         train_data=data_train,
                                          args=train_args,
-                                         collator=DataCollatorForLanguageModeling(tokenizer, mlm=False))
+                                         collator=data_collator)
 
-    print(f"Quant config: {quant_config.to_dict()} PEFT config: {peft_config.to_dict()}"
-          f"Train Arg: {train_args.to_dict()} Dataset: {dataset}")
+    # logging
+    logger.info("-- Training Model --")
 
     # training
     trainer.train()  # train with SFTTrainer
     # log to WB
+
+    # logging complete
+    logger.info("-- Train Complete")
 
     # save model
     # trainer.save_model(params['output_dir'])
